@@ -1,0 +1,208 @@
+
+/* ── 디자인 토큰 ─────────────────────────────────────────────
+   원칙 1. 간격은 4px 그리드. 토큰 이름이 곧 값(--sp-16 = 16px).
+   원칙 2. 소수점 px 없음. 자간은 px·em 혼용을 em으로 통일.
+   원칙 3. 닷패드 핀 기하만 그리드에서 제외 — 실제 기기 비례라
+           4의 배수로 스냅하면 점자 셀 모양이 틀어진다.
+   ─────────────────────────────────────────────────────────── */
+:root{
+  --font:'Noto Sans KR','Noto Sans',system-ui,-apple-system,sans-serif;
+  --serif:'Noto Serif KR',serif;
+
+  /* 타입 스케일 */
+  --fs-h1:30px; --fs-h2:22px; --fs-figure:28px; --fs-brand:16px;
+  --fs-lg:17px; --fs-md:15px; --fs-sm:14px; --fs-xs:12px; --fs-2xs:11px;
+
+  /* 자간 */
+  --tr-tight:-.02em; --tr-snug:-.01em; --tr-body:-.003em;
+  --tr-wide:.02em; --tr-eyebrow:.14em;
+
+  /* 행간 */
+  --lh-tight:1.2; --lh:1.65; --lh-note:1.7; --lh-serif:1.75; --lh-relaxed:1.85;
+
+  /* 간격 — 4px 그리드 */
+  --sp-2:2px; --sp-4:4px; --sp-8:8px; --sp-12:12px; --sp-16:16px;
+  --sp-20:20px; --sp-24:24px; --sp-28:28px; --sp-32:32px; --sp-36:36px;
+  --sp-48:48px; --sp-112:112px;
+
+  /* 모서리 */
+  --radius-xs:6px; --radius-sm:10px; --radius:16px; --radius-lg:22px; --pill:999px;
+
+  /* 터치 영역 (WCAG 2.5.8) · 포커스 링 */
+  --tap:44px; --tap-lg:48px; --focus-w:3px;
+
+  /* 색 */
+  --bg:#FBF8F2; --paper:#FFFFFF; --card:#FFFFFF; --card-warm:#F7F3EB;
+  --banner-bg:#ECE8DE; --side:#16150F;
+  --ink:#1F1D1A; --ink-soft:#5C574E; --ink-faint:#9A9384;
+  --line:#EDE7DC; --line-strong:#E2DACB;
+  --accent:#FF4F00; --accent-soft:#FFF1EA;
+  --accent-text:#C43D00;                /* 밝은 배경 위 텍스트용(AA 5.2:1) */
+  --accent-press:#A83400;
+  --ok:#0F6E56; --ok-bg:#E9F1ED; --danger:#C0392B; --danger-bg:#FBEAEA;
+  --info-bg:#EEF3F6; --info-text:#2A4D68;
+  --pin-up:#F1E7D3; --pin-dn:#3A362B;   /* 기기 패널 위 핀: 돋음 아이보리 / 내림 어둠 */
+
+  /* 닷패드 핀 기하 — 그리드 예외 */
+  --pin-dot:7px; --pin-dot-gap:3px; --pin-cell-pad:2px;
+  --pin-cell-gap:5px; --pin-row-gap:6px; --pin-line-gap:7px;
+
+  --shadow-sm:0 1px 2px rgba(31,29,26,.04), 0 4px 16px -10px rgba(31,29,26,.16);
+  --shadow:0 2px 6px -2px rgba(31,29,26,.08), 0 18px 40px -24px rgba(31,29,26,.28);
+  --dur-fast:130ms; --dur:240ms; --ease:cubic-bezier(.22,.61,.36,1);
+  --header-h:60px; --wrap:820px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:var(--fs-md);line-height:var(--lh);-webkit-font-smoothing:antialiased;letter-spacing:var(--tr-body)}
+:focus-visible{outline:var(--focus-w) solid var(--accent);outline-offset:2px;border-radius:var(--radius-xs)}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:var(--sp-8) var(--sp-16);border-radius:0 0 var(--radius-sm) 0;z-index:99}
+.skip:focus{left:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── 헤더 ─────────────────────────────────────────────────── */
+header{position:sticky;top:0;height:var(--header-h);background:var(--side);color:#FBF8F2;display:flex;align-items:center;gap:var(--sp-12);padding:0 clamp(16px,4vw,28px);z-index:10}
+header .logo{font-weight:800;font-size:var(--fs-brand);letter-spacing:0;display:flex;align-items:center;gap:var(--sp-8)}
+header .logo .brand-mark{display:block;flex:0 0 auto}
+header nav{margin-left:auto;display:flex;gap:var(--sp-2)}
+header nav button{position:relative;font:inherit;font-weight:600;font-size:var(--fs-sm);color:rgba(251,248,242,.62);background:transparent;border:0;padding:var(--sp-8) var(--sp-12);border-radius:var(--radius-sm);cursor:pointer;min-height:var(--tap);transition:color var(--dur-fast) var(--ease)}
+header nav button:hover{color:#fff;background:rgba(255,255,255,.06)}
+header nav button[aria-current="page"]{color:#fff}
+header nav button[aria-current="page"]::after{content:"";position:absolute;left:var(--sp-12);right:var(--sp-12);bottom:var(--sp-4);height:var(--sp-2);border-radius:var(--pill);background:var(--accent)}
+
+/* ── 닷패드 상태 배지 ─────────────────────────────────────── */
+.dp-badge{display:flex;align-items:center;gap:var(--sp-8);font-size:var(--fs-xs);font-weight:600;padding:var(--sp-8) var(--sp-16);border-radius:var(--pill);background:transparent;color:rgba(251,248,242,.85);border:1px solid rgba(255,255,255,.18);cursor:pointer;min-height:var(--tap);transition:background var(--dur-fast)}
+.dp-badge .lamp{width:var(--sp-8);height:var(--sp-8);border-radius:50%;background:var(--ink-faint);box-shadow:0 0 0 3px rgba(255,255,255,.05)}
+.dp-badge.on{border-color:rgba(62,213,152,.4)}
+.dp-badge.on .lamp{background:#3ED598;box-shadow:0 0 0 3px rgba(62,213,152,.15)}
+.dp-badge:hover{background:rgba(255,255,255,.08)}
+/* 언어 토글 — .dp-badge를 그대로 쓰되 두 글자짜리라 좌우 여백만 좁힌다 */
+.lang-toggle{padding:var(--sp-8) var(--sp-12);font-weight:700;letter-spacing:var(--tr-wide);justify-content:center}
+
+main{max-width:var(--wrap);margin:0 auto;padding:var(--sp-36) clamp(16px,4vw,24px) var(--sp-112)}
+h1{font-size:var(--fs-h1);line-height:var(--lh-tight);letter-spacing:var(--tr-tight);margin:0 0 var(--sp-8);font-weight:800}
+h2{font-size:var(--fs-h2);line-height:var(--lh-tight);margin:0 0 var(--sp-8);letter-spacing:var(--tr-snug);font-weight:700}
+.sub{color:var(--ink-soft);margin:0 0 var(--sp-32);font-size:var(--fs-lg);line-height:var(--lh-relaxed)}
+
+/* ── 카드 — 블록 사이 간격은 한 규칙이 전담한다 ───────────── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:var(--sp-28)}
+:is(.card,.verse-card) + :is(.card,.verse-card){margin-top:var(--sp-20)}
+.card > .sub{margin-bottom:0}
+
+/* 오늘의 말씀 — 편집물 같은 히어로 */
+.verse-card{background:linear-gradient(180deg,#FFFDF9,var(--card));border:1px solid var(--line-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:var(--sp-36) var(--sp-32) var(--sp-24);position:relative;overflow:hidden}
+.verse-card .eyebrow{display:inline-block;font-size:var(--fs-2xs);font-weight:800;letter-spacing:var(--tr-eyebrow);color:var(--accent-text);margin-bottom:var(--sp-20);text-transform:none}
+.verse-card blockquote{margin:0;font-family:var(--serif);font-size:clamp(20px,3.6vw,28px);font-weight:600;line-height:var(--lh-serif);letter-spacing:var(--tr-snug);word-break:keep-all;color:#1A1815}
+.verse-card cite{display:block;margin-top:var(--sp-16);font-style:normal;font-weight:700;color:var(--ink-soft);font-size:var(--fs-sm);letter-spacing:var(--tr-wide)}
+
+/* ── 닷패드 촉각 면 (시그니처): 실제 기기 표면처럼 ─────────── */
+.braille-strip{margin-top:var(--sp-24);padding:var(--sp-16) var(--sp-20) var(--sp-20);background:var(--side);border:1px solid #000;border-radius:var(--radius);box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 10px 30px -18px rgba(0,0,0,.5)}
+.braille-strip .label{font-size:var(--fs-2xs);font-weight:600;letter-spacing:var(--tr-wide);color:rgba(241,231,211,.5);margin-bottom:var(--sp-12);display:flex;justify-content:space-between;align-items:center}
+.cells{display:flex;gap:var(--pin-line-gap);flex-wrap:wrap}
+.cells.grid{flex-direction:column;gap:var(--pin-row-gap);overflow-x:auto;padding-bottom:var(--pin-cell-pad)}
+.cell-row{display:flex;gap:var(--pin-cell-gap)}
+.cell{display:grid;grid-template-columns:repeat(2,var(--pin-dot));grid-auto-rows:var(--pin-dot);gap:var(--pin-dot-gap);padding:var(--pin-cell-pad)}
+.cell i{width:var(--pin-dot);height:var(--pin-dot);border-radius:50%;background:var(--pin-dn);box-shadow:inset 0 1px 1px rgba(0,0,0,.5)}
+.cell i.up{background:var(--pin-up);box-shadow:0 1px 2px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.7)}
+
+/* ── 버튼 행 — 간격 변형은 modifier로만 ───────────────────── */
+.row{display:flex;gap:var(--sp-12);flex-wrap:wrap;margin-top:var(--sp-24)}
+.row--tight{margin-top:var(--sp-12)}
+.row--flush{margin-top:0}
+.row--center{align-items:center}
+.row--bottom{align-items:flex-end}
+.row .spacer{flex:1}
+
+button.btn{font:inherit;font-weight:700;font-size:var(--fs-md);border-radius:var(--pill);border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);padding:var(--sp-12) var(--sp-24);cursor:pointer;min-height:var(--tap-lg);transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast),transform var(--dur-fast),box-shadow var(--dur-fast)}
+button.btn:hover{background:var(--card-warm);border-color:var(--line-strong)}
+button.btn:active{transform:translateY(1px)}
+button.btn.primary{background:var(--accent-text);border-color:var(--accent-text);color:#fff;box-shadow:0 6px 16px -8px rgba(196,61,0,.5)}
+button.btn.primary:hover{background:var(--accent-press);border-color:var(--accent-press)}
+button.btn.primary[aria-pressed="true"]{background:var(--accent-press)}
+button.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+button.btn.accent2{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-text)}
+button.btn.accent2:hover{border-color:var(--accent-press)}
+details.shortcuts{margin-top:var(--sp-20)}
+details.shortcuts summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:var(--sp-8);
+  font-weight:700;font-size:var(--fs-sm);color:var(--ink-soft);padding:var(--sp-8) var(--sp-16);
+  border:1px solid var(--line-strong);border-radius:var(--pill);min-height:var(--tap)}
+details.shortcuts summary::-webkit-details-marker{display:none}
+details.shortcuts summary::before{content:"";width:0;height:0;border:5px solid transparent;
+  border-left-color:var(--ink-faint);margin-right:var(--sp-2);transition:transform var(--dur-fast)}
+details.shortcuts[open] summary::before{transform:rotate(90deg)}
+details.shortcuts summary:hover{background:var(--card-warm)}
+details.shortcuts .kbd-help:first-of-type{margin-top:var(--sp-16)}
+.back-link{display:inline-flex;align-items:center;gap:var(--sp-4);min-height:var(--tap);
+  margin:0 0 var(--sp-8);font:inherit;font-weight:600;font-size:var(--fs-sm);
+  color:var(--ink-soft);background:none;border:0;padding:0;cursor:pointer}
+.back-link:hover{color:var(--ink);text-decoration:underline}
+button.btn.sm{padding:var(--sp-8) var(--sp-16);min-height:var(--tap);font-size:var(--fs-sm);font-weight:600;color:var(--ink-soft);border-color:var(--line)}
+button.btn.sm:hover{color:var(--ink)}
+button.btn.sm.primary{color:#fff}
+
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-12);margin-top:var(--sp-16)}
+@media(max-width:640px){.plan-grid{grid-template-columns:1fr}}
+.stat{background:var(--card-warm);border:1px solid var(--line);border-radius:var(--radius-sm);padding:var(--sp-16) var(--sp-20)}
+.stat b{display:block;font-size:var(--fs-figure);line-height:var(--lh-tight);letter-spacing:var(--tr-tight);font-weight:800}
+.stat span{color:var(--ink-soft);font-size:var(--fs-xs);font-weight:600}
+.progress{height:var(--sp-8);background:var(--banner-bg);border-radius:var(--pill);overflow:hidden;margin-top:var(--sp-12)}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:var(--pill);transition:width var(--dur) var(--ease)}
+
+/* 목록 위 소제목 — 인라인 스타일로 흩어져 있던 것을 하나로 */
+.field-label{margin:var(--sp-16) 0 0;font-weight:800;font-size:var(--fs-sm);color:var(--ink-soft)}
+
+.chip-list{display:flex;gap:var(--sp-8);flex-wrap:wrap;margin-top:var(--sp-12)}
+.chip{font-size:var(--fs-sm);font-weight:600;background:var(--paper);border:1px solid var(--line-strong);border-radius:var(--pill);padding:var(--sp-8) var(--sp-16);cursor:pointer;min-height:var(--tap);color:var(--ink);transition:background var(--dur-fast),border-color var(--dur-fast)}
+.chip:hover{background:var(--accent-soft);border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--ok-bg);border-color:transparent;color:var(--ok);font-weight:700}
+
+/* ── 리더 ─────────────────────────────────────────────────── */
+.reader-head{display:flex;align-items:baseline;gap:var(--sp-12);flex-wrap:wrap;margin-bottom:var(--sp-4)}
+.reader-head h2{margin:0}
+.reader-head .meta{color:var(--ink-faint);font-size:var(--fs-xs);font-weight:600;letter-spacing:var(--tr-wide)}
+ol.verses{list-style:none;margin:var(--sp-20) 0 0;padding:0}
+ol.verses li{display:flex;gap:var(--sp-12);padding:var(--sp-12) var(--sp-16);border-radius:var(--radius-sm);cursor:pointer;word-break:keep-all;line-height:var(--lh-relaxed);font-size:var(--fs-lg);font-family:var(--serif);font-weight:500;transition:background var(--dur-fast)}
+ol.verses li:hover{background:var(--card-warm)}
+ol.verses li .n{flex:0 0 auto;font-family:var(--font);font-weight:700;color:var(--ink-faint);font-size:var(--fs-xs);padding-top:var(--sp-8);min-width:var(--sp-24);text-align:right}
+ol.verses li[aria-current="true"]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+ol.verses li[aria-current="true"] .n{color:var(--accent-text)}
+
+.reader-bar{position:sticky;bottom:0;margin-top:var(--sp-24);background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(8px);border:1px solid var(--line-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:var(--sp-16) var(--sp-20)}
+.reader-bar .row{margin-top:0}
+.reader-bar .row + .row{margin-top:var(--sp-12)}
+
+select{font:inherit;font-size:var(--fs-md);padding:var(--sp-12) var(--sp-16);border-radius:var(--radius-sm);border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);min-height:var(--tap-lg)}
+label.fld{display:flex;flex-direction:column;gap:var(--sp-8);font-size:var(--fs-xs);font-weight:700;color:var(--ink-soft)}
+
+.notice:first-child{margin-top:0}
+.notice{border-radius:var(--radius-sm);padding:var(--sp-12) var(--sp-16);font-size:var(--fs-sm);font-weight:500;margin-top:var(--sp-20);line-height:var(--lh-note)}
+.notice.info{background:var(--info-bg);color:var(--info-text)}
+.notice.err{background:var(--danger-bg);color:var(--danger)}
+.notice.ok{background:var(--ok-bg);color:var(--ok)}
+
+.kbd-help{margin-top:var(--sp-16);color:var(--ink-faint);font-size:var(--fs-xs);line-height:var(--lh-note)}
+.kbd-help kbd{background:var(--card-warm);border:1px solid var(--line-strong);border-radius:var(--radius-xs);padding:var(--sp-2) var(--sp-8);font-family:inherit;font-weight:700;color:var(--ink-soft)}
+.speed-label{font-size:var(--fs-xs);font-weight:700;color:var(--ink-soft)}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:var(--pill);overflow:hidden}
+.seg-btn{font:inherit;font-weight:600;font-size:var(--fs-sm);border:0;background:var(--paper);color:var(--ink-soft);padding:var(--sp-8) var(--sp-16);min-height:var(--tap);cursor:pointer;transition:background var(--dur-fast)}
+.seg-btn:hover{background:var(--card-warm)}
+.seg-btn + .seg-btn{border-left:1px solid var(--line-strong)}
+.seg-btn[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+footer{max-width:var(--wrap);margin:var(--sp-8) auto 0;padding:var(--sp-8) clamp(16px,4vw,24px) var(--sp-48);color:var(--ink-faint);font-size:var(--fs-xs);line-height:var(--lh-note);border-top:1px solid var(--line)}
+[hidden]{display:none!important}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── 임베드 모드 (?embed=1) — tactileworlds Dot Library 모달 안 ──
+   호스트 모달: max-width 1180px / width 96vw / height calc(100vh - 56px)
+   호스트 닫기 버튼(✕)이 우측 상단에 겹치므로 헤더 오른쪽을 비워둔다.
+   헤더는 유지 — 호스트 모달에 제목 표시줄이 없고 닷패드 연결 버튼도 여기 있다. */
+/* 스티키 도구 막대는 본문 위에 떠서 그려진다. 아래 여백을 막대 높이만큼
+   확보하지 않으면 촉각 면이 막대에 가린다. 높이는 버튼 줄바꿈에 따라
+   달라지므로 JS가 --reader-bar-h 를 채운다. */
+main{padding-bottom:calc(var(--sp-48) + var(--reader-bar-h, 0px))}
+/* 절 이동 시 scrollIntoView가 목표를 스티키 막대 뒤로 스크롤시키지 않게. 현재 낭독 중인 절이 막대에 가려지면 듣는 도중 위치를 잃는다. */
+html{scroll-padding-bottom:calc(var(--reader-bar-h, 0px) + var(--sp-16))}
+html[data-tw-embed] header{padding-right:68px}
+html[data-tw-embed] main{padding-top:var(--sp-28);padding-bottom:var(--sp-48)}
+html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
