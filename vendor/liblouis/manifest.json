@@ -1,0 +1,68 @@
+{
+  "build": "build-no-tables-utf32.js",
+  "heapMB": 128,
+  "tables": {
+    "ko-2006-g2.ctb": [
+      "ko-2006-g2.ctb",
+      "unicode.dis",
+      "ko-2006.cti",
+      "ko-g2-rules.cti",
+      "en-chardefs.cti",
+      "braille-patterns.cti",
+      "litdigits6Dots.uti",
+      "ko-chars.cti",
+      "en-us-g2.ctb",
+      "spaces.uti",
+      "loweredDigits6Dots.uti",
+      "latinLetterDef6Dots.uti",
+      "latinUppercaseComp6.uti",
+      "en-us-g1.ctb",
+      "en-us-compbrl.uti",
+      "en-us-emphasis.uti"
+    ],
+    "en-ueb-g2.ctb": [
+      "en-ueb-g2.ctb",
+      "unicode.dis",
+      "en-ueb-g1.ctb",
+      "en-ueb-chardefs.uti",
+      "en-ueb-math.ctb",
+      "braille-patterns.cti",
+      "text_nabcc.dis",
+      "spaces.uti",
+      "latinLetterDef6Dots.uti",
+      "latinUppercaseComp6.uti"
+    ],
+    "es-g1.ctb": [
+      "es-g1.ctb",
+      "unicode.dis",
+      "es-chardefs.cti",
+      "braille-patterns.cti",
+      "litdigits6Dots.uti",
+      "digits6Dots.uti",
+      "spaces.uti",
+      "latinLetterDef6Dots.uti"
+    ],
+    "fr-bfu-g2.ctb": [
+      "fr-bfu-g2.ctb",
+      "unicode.dis",
+      "fr-bfu-comp6.utb",
+      "spaces.uti",
+      "latinLetterDef6Dots.uti",
+      "digits6DotsPlusDot6.uti",
+      "litdigits6DotsPlusDot6.uti",
+      "braille-patterns.cti",
+      "fr-bfu-comp68.cti",
+      "IPA-unicode-range.uti"
+    ],
+    "zh-tw.ctb": [
+      "zh-tw.ctb",
+      "unicode.dis",
+      "en-us-comp8.ctb",
+      "IPA-unicode-range.uti",
+      "braille-patterns.cti",
+      "spaces.uti",
+      "loweredDigits6Dots.uti",
+      "latinLetterDef8Dots.uti"
+    ]
+  }
+}
