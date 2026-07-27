@@ -30,7 +30,7 @@ Dot Games의 Qa 배열과 같은 형태입니다. 배포 URL 확정 후 마지�
 
     ["Dot Bible", "닷패드로 읽는 다국어 성경", "종교·인문",
      ["60×40"], "note", 3, <표지 thumb>, <hero>,
-     "https://<배포주소>/index.html?embed=1&preview=0"]
+     "https://dotbible.vercel.app/index.html?embed=1&preview=0"]
 
 | 필드 | 값 |
 |---|---|
@@ -115,8 +115,8 @@ CC BY·CC BY-SA 번역본을 추가할 경우 화면 출처 표시가 필수입�
 
 ## 7. 남은 작업
 
-- [ ] 배포 (Vercel · Framework Preset **Other** · Build Command 비움)
-- [ ] 배포 URL 확정 → 위 카탈로그 항목 마지막 필드에 기입
+- [x] 배포 — https://dotbible.vercel.app (Vercel · GitHub push 시 자동 갱신)
+- [x] 배포 URL 확정 → 카탈로그 항목에 기입 완료
 - [ ] 표지 이미지 제작 (이샛별)
 - [ ] Dot Library 카탈로그 항목 추가 (심영훈 — 번들 원본 보유)
 - [ ] 라이브에서 키보드 탐색·스크린리더 흐름 검수
