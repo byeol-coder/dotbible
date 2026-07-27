@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>임베드 계약 테스트 — tactileworlds 호스트 재현</title>
+<!-- 배포물 아님. tib-preview 번들의 호스트 모달(sx) 조건을 재현한 테스트 페이지.
+     하루 말씀 index.html 과 같은 폴더에 두고 로컬 서버로 여세요.
+       python3 -m http.server 8000
+       http://localhost:8000/embed-test.html                                  -->
+<style>
+  :root{--ink:#171719;--ink-soft:#5A5A61;--line:#E3DFD6;--paper:#fff;--bg:#F7F4EF;--accent:#C43D00}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:40px 24px;
+       font:15px/1.65 Pretendard,-apple-system,'Noto Sans KR',sans-serif}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:21px;margin:0 0 6px}
+  p.lead{margin:0 0 22px;color:var(--ink-soft)}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+  input{font:inherit;width:100%;padding:11px 13px;border:1px solid var(--line);
+        border-radius:9px;background:var(--paper);color:var(--ink);min-height:44px}
+  input:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+  .btn{font:inherit;font-weight:600;cursor:pointer;margin-top:12px;min-height:44px;
+       border:1px solid var(--accent);background:var(--accent);color:#fff;
+       padding:11px 18px;border-radius:9px}
+  .btn:focus-visible{outline:3px solid #000;outline-offset:2px}
+  h2{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);margin:28px 0 8px}
+  #log{background:var(--paper);border:1px solid var(--line);border-radius:10px;
+       padding:14px 16px;min-height:110px;margin:0;white-space:pre-wrap;
+       font:13px/1.8 'SF Mono',ui-monospace,monospace}
+  ol{padding-left:20px;color:var(--ink-soft)} ol li{margin-bottom:6px}
+  code{background:#EFEAE1;padding:1px 6px;border-radius:5px;font-size:13px}
+
+  /* 호스트 모달 재현 */
+  .ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;
+       align-items:center;justify-content:center;overflow-y:hidden;z-index:50}
+  .ovl[data-open]{display:flex}
+  .ovl-x{position:absolute;top:12px;right:16px;z-index:2;width:40px;height:40px;
+         border-radius:50%;cursor:pointer;border:none;background:rgba(255,255,255,.92);
+         color:#111;font-size:19px;line-height:1}
+  .ovl-x:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .modal{max-width:1180px;width:96vw;height:calc(100vh - 56px);padding:0;overflow:hidden;
+         display:flex;flex-direction:column;background:#fff;border-radius:14px}
+  .modal iframe{display:block;width:100%;flex:1 1 auto;min-height:0;border:0;background:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>임베드 계약 테스트</h1>
+  <p class="lead">tactileworlds 호스트 모달을 그대로 재현했습니다. 모달 크기·<code>allow</code> 속성·postMessage 수신·자동 포커스가 실제와 같습니다.</p>
+
+  <label for="url">임베드 URL</label>
+  <input id="url" type="text" value="index.html?embed=1" spellcheck="false">
+  <button class="btn" id="open" type="button">모달 열기</button>
+
+  <h2>확인 순서</h2>
+  <ol>
+    <li>모달을 엽니다. 헤더 오른쪽 닷패드 버튼이 ✕에 가리지 않는지 봅니다.</li>
+    <li><b>Tab으로 iframe 안에 들어간 뒤 Escape</b> — exit 수신 로그가 찍히고 닫힙니다.</li>
+    <li>「음성으로 듣기」 재생 중 Escape — 닫히면서 음성도 끊겨야 합니다.</li>
+    <li>「읽기」에서 Space로 연속 청취 중 Escape — 마찬가지로 멈춰야 합니다.</li>
+  </ol>
+
+  <h2>수신 로그</h2>
+  <pre id="log">대기 중…</pre>
+</div>
+
+<div class="ovl" id="ovl">
+  <button class="ovl-x" id="ovlx" type="button" aria-label="닫기">✕</button>
+  <div class="modal" role="dialog" aria-modal="true" aria-label="하루 말씀">
+    <iframe id="frame" title="하루 말씀"
+      allow="bluetooth; microphone; autoplay; clipboard-write"></iframe>
+  </div>
+</div>
+
+<script>
+var ovl=document.getElementById('ovl'), frame=document.getElementById('frame'),
+    logEl=document.getElementById('log'), lines=[], prevFocus=null;
+
+function log(m){
+  lines.push('['+new Date().toLocaleTimeString('ko-KR')+'] '+m);
+  logEl.textContent=lines.slice(-14).join('\n');
+}
+function open(){
+  prevFocus=document.activeElement;
+  frame.src=document.getElementById('url').value;
+  ovl.setAttribute('data-open','');
+  document.body.style.overflow='hidden';
+  log('모달 열림 · '+frame.src);
+  setTimeout(function(){ try{ frame.focus(); }catch(e){} },80);
+}
+function close(){
+  ovl.removeAttribute('data-open');
+  frame.src='about:blank';
+  document.body.style.overflow='';
+  log('모달 닫힘');
+  try{ prevFocus && prevFocus.focus(); }catch(e){}
+}
+document.getElementById('open').addEventListener('click',open);
+document.getElementById('ovlx').addEventListener('click',close);
+
+/* 호스트 쪽 Escape — 포커스가 iframe 안에 있으면 여기까지 오지 않는다 */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape' && ovl.hasAttribute('data-open')){
+    log('부모 document 가 Escape 수신 → 닫기'); close();
+  }
+});
+/* 자식이 보낸 exit 수신 */
+window.addEventListener('message',function(e){
+  var p=e&&e.data;
+  if(p && p.source==='dotarcade'){
+    log('postMessage 수신: '+JSON.stringify(p));
+    if(p.type==='exit') close();
+  }
+});
+</script>
+</body>
+</html>
