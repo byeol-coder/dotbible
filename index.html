@@ -143,6 +143,22 @@ button.btn.primary{background:var(--accent-text);border-color:var(--accent-text)
 button.btn.primary:hover{background:var(--accent-press);border-color:var(--accent-press)}
 button.btn.primary[aria-pressed="true"]{background:var(--accent-press)}
 button.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+button.btn.accent2{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-text)}
+button.btn.accent2:hover{border-color:var(--accent-press)}
+details.shortcuts{margin-top:var(--sp-20)}
+details.shortcuts summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:var(--sp-8);
+  font-weight:700;font-size:var(--fs-sm);color:var(--ink-soft);padding:var(--sp-8) var(--sp-16);
+  border:1px solid var(--line-strong);border-radius:var(--pill);min-height:var(--tap)}
+details.shortcuts summary::-webkit-details-marker{display:none}
+details.shortcuts summary::before{content:"";width:0;height:0;border:5px solid transparent;
+  border-left-color:var(--ink-faint);margin-right:var(--sp-2);transition:transform var(--dur-fast)}
+details.shortcuts[open] summary::before{transform:rotate(90deg)}
+details.shortcuts summary:hover{background:var(--card-warm)}
+details.shortcuts .kbd-help:first-of-type{margin-top:var(--sp-16)}
+.back-link{display:inline-flex;align-items:center;gap:var(--sp-4);min-height:var(--tap);
+  margin:0 0 var(--sp-8);font:inherit;font-weight:600;font-size:var(--fs-sm);
+  color:var(--ink-soft);background:none;border:0;padding:0;cursor:pointer}
+.back-link:hover{color:var(--ink);text-decoration:underline}
 button.btn.sm{padding:var(--sp-8) var(--sp-16);min-height:var(--tap);font-size:var(--fs-sm);font-weight:600;color:var(--ink-soft);border-color:var(--line)}
 button.btn.sm:hover{color:var(--ink)}
 button.btn.sm.primary{color:#fff}
@@ -289,6 +305,7 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
 
   <!-- ── 읽기 ─────────────────────────────────────────────── -->
   <section id="view-reader" hidden aria-labelledby="readerTitle">
+    <button type="button" class="back-link" id="readerBack"></button>
     <div class="reader-head">
       <h2 id="readerTitle" data-i18n="reader.title">읽기</h2>
       <span class="meta" id="readerMeta"></span>
@@ -302,17 +319,20 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
     </div>
 
     <div class="reader-bar" role="toolbar" data-i18n-aria="reader.toolbarAria" aria-label="읽기 도구">
-      <div class="row">
+      <p class="field-label" data-i18n="reader.groupPlay">재생</p>
+      <div class="row row--tight">
         <button class="btn primary" id="btnPlay" aria-pressed="false" data-i18n="btn.play">▶ 이어 듣기</button>
         <button class="btn sm" id="btnRepeat" data-i18n="reader.repeat">이 절 다시</button>
         <button class="btn sm" id="btnPrevVerse" data-i18n="reader.prevVerse">이전 절</button>
         <button class="btn sm" id="btnNextVerse" data-i18n="reader.nextVerse">다음 절</button>
       </div>
+      <p class="field-label" data-i18n="reader.groupOutput">출력</p>
       <div class="row row--tight">
         <button class="btn sm" id="btnWhere" data-i18n="reader.where">지금 어디</button>
-        <button class="btn sm primary" id="btnSendVerse" data-i18n="reader.sendVerse">이 절 닷패드 출력</button>
+        <button class="btn sm accent2" id="btnSendVerse" data-i18n="reader.sendVerse">이 절 닷패드 출력</button>
         <button class="btn sm" id="btnMarkRead" data-i18n="reader.markRead">이 장 읽음 표시</button>
       </div>
+      <p class="field-label" data-i18n="reader.groupSettings">설정</p>
       <div class="row row--tight row--center">
         <span class="speed-label" id="speedLabel" data-i18n="reader.speedLabel">낭독 속도</span>
         <div class="seg" role="group" aria-labelledby="speedLabel">
@@ -323,13 +343,19 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
         <button class="btn sm" id="btnAuto" aria-pressed="true" data-i18n="btn.autoOn">자동 넘김: 켬</button>
         <button class="btn sm" id="btnTactileMode" aria-pressed="false" data-i18n="btn.tactileVerse">촉각: 절 단위</button>
         <button class="btn sm" id="btnGraphic" hidden data-i18n="btn.graphicShow">핵심 그래픽 보기</button>
+      </div>
+      <p class="field-label" data-i18n="reader.groupNav">촉각 면 이동</p>
+      <div class="row row--tight">
         <div class="seg" role="group" data-i18n-aria="reader.panGroupAria" aria-label="촉각 면 쪽 이동">
           <button class="seg-btn" id="btnPanL" data-i18n="reader.panPrev">◀ 이전 쪽</button>
           <button class="seg-btn" id="btnPanR" data-i18n="reader.panNext">다음 쪽 ▶</button>
         </div>
       </div>
-      <p class="kbd-help" data-i18n-html="reader.kbdHelp">단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.</p>
-      <p class="kbd-help" id="dpKeys"></p>
+      <details class="shortcuts">
+        <summary data-i18n="reader.shortcutsToggle">단축키 보기</summary>
+        <p class="kbd-help" data-i18n-html="reader.kbdHelp">단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.</p>
+        <p class="kbd-help" id="dpKeys"></p>
+      </details>
     </div>
   </section>
 
@@ -471,6 +497,8 @@ const I18N = {
     "reader.where":"지금 어디", "reader.sendVerse":"이 절 닷패드 출력", "reader.markRead":"이 장 읽음 표시",
     "reader.speedLabel":"낭독 속도", "reader.speedSlow":"느리게", "reader.speedNormal":"보통", "reader.speedFast":"빠르게",
     "reader.panPrev":"◀ 이전 쪽", "reader.panNext":"다음 쪽 ▶", "reader.panGroupAria":"촉각 면 쪽 이동",
+    "reader.groupPlay":"재생", "reader.groupOutput":"출력", "reader.groupSettings":"설정", "reader.groupNav":"촉각 면 이동",
+    "reader.shortcutsToggle":"단축키 보기",
     "reader.dpKeysLabel":"닷패드 키",
     "reader.kbdHelp":'단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.',
     "reader.loading":"불러오는 중…",
@@ -580,6 +608,8 @@ const I18N = {
     "reader.where":"Where am I", "reader.sendVerse":"Send verse to DotPad", "reader.markRead":"Mark chapter read",
     "reader.speedLabel":"Reading speed", "reader.speedSlow":"Slow", "reader.speedNormal":"Normal", "reader.speedFast":"Fast",
     "reader.panPrev":"◀ Previous page", "reader.panNext":"Next page ▶", "reader.panGroupAria":"Tactile page navigation",
+    "reader.groupPlay":"Playback", "reader.groupOutput":"Output", "reader.groupSettings":"Settings", "reader.groupNav":"Tactile paging",
+    "reader.shortcutsToggle":"Keyboard shortcuts",
     "reader.dpKeysLabel":"DotPad keys",
     "reader.kbdHelp":'Keyboard shortcuts (no mouse or touch needed): <kbd>Space</kbd> play/pause · <kbd>↑</kbd><kbd>↓</kbd> move between verses · <kbd>Enter</kbd> send to DotPad · <kbd>[</kbd><kbd>]</kbd> previous/next tactile page. DotPad panning keys turn pages too. <b>Tactile mode</b> can follow the current verse (synced with audio) or lay out the whole chapter across several lines to scan by hand, and any registered <b>key graphic</b> can be shown tactilely. Everything above also works from a screen reader via these buttons.',
     "reader.loading":"Loading…",
@@ -737,7 +767,7 @@ function setUILang(id){
   if(UI.transInfo) UI.transInfo(); else UI.attribution();
   UI.renderResume();
   UI.home();
-  if(UI.view==="reader" && UI.reader.bookId) UI.refreshBraille();
+  if(UI.view==="reader" && UI.reader.bookId){ UI.refreshBraille(); UI.renderReaderBack(); }
 }
 
 /* ============================================================
@@ -1622,7 +1652,9 @@ const UI = {
     const g=DP.gridPins();
     const bits = (Pager.mode==="graphic" && Pager.graphicHex)
       ? deviceHexToBits(Pager.graphicHex) : Pager.bitsNow();
-    const cols=Math.floor(g.cols/3), rows=Math.floor(g.rows/5);
+    const cols=Math.floor(g.cols/3), maxRows=Math.floor(g.rows/5);
+    const curPage=(Pager.mode!=="graphic" && Pager.pages) ? Pager.pages[Pager.page] : null;
+    const rows = curPage ? Math.max(1,Math.min(maxRows,curPage.length)) : maxRows;
     let html="";
     for(let li=0; li<rows; li++){
       html+='<div class="cell-row">';
@@ -1728,9 +1760,17 @@ const UI = {
   },
 
   /* ── 리더 ── */
+  _readerFrom:"home",
+  renderReaderBack(){
+    const el=$("#readerBack"); if(!el) return;
+    const from=this._readerFrom||"home";
+    el.textContent="‹ "+t(from==="home" ? "nav.today" : "nav.browse");
+  },
   async openChapter(bookId,chapter,queue,qIdx){
     const book=BOOKS[bookId-1];
+    if(this.view!=="reader") this._readerFrom=(this.view==="home") ? "home" : "browse";
     this.nav("reader");
+    this.renderReaderBack();
     $("#readerTitle").textContent=Trans.refCh(bookId, chapter);
     $("#readerTitle").lang=Trans.langCode();
     $("#readerMeta").textContent=Trans.cur().short;
@@ -2032,6 +2072,7 @@ const UI = {
       for(let i=1;i<=b.chapters;i++){ const o=document.createElement("option"); o.value=i; o.textContent=Trans.chLabel(i); sc.appendChild(o); }
     };
     sb.addEventListener("change",fillCh); fillCh();
+    $("#readerBack").addEventListener("click",()=>UI.nav(UI._readerFrom||"home"));
     $("#btnOpenChapter").addEventListener("click",()=>UI.openChapter(+sb.value,+sc.value,null,-1));
   }
 };
