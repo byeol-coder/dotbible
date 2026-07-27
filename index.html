@@ -208,6 +208,8 @@ footer{max-width:var(--wrap);margin:var(--sp-8) auto 0;padding:var(--sp-8) clamp
    확보하지 않으면 촉각 면이 막대에 가린다. 높이는 버튼 줄바꿈에 따라
    달라지므로 JS가 --reader-bar-h 를 채운다. */
 main{padding-bottom:calc(var(--sp-48) + var(--reader-bar-h, 0px))}
+/* 절 이동 시 scrollIntoView가 목표를 스티키 막대 뒤로 스크롤시키지 않게. 현재 낭독 중인 절이 막대에 가려지면 듣는 도중 위치를 잃는다. */
+html{scroll-padding-bottom:calc(var(--reader-bar-h, 0px) + var(--sp-16))}
 html[data-tw-embed] header{padding-right:68px}
 html[data-tw-embed] main{padding-top:var(--sp-28);padding-bottom:var(--sp-48)}
 html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
