@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ============================================================
-   build-bible.mjs — open-bibles → 하루 말씀 내부 스키마
+   build-bible.mjs — open-bibles → Dot Bible 내부 스키마
 
    공급처 형식(USFX·OSIS)을 그대로 쓰지 않고 앱 공통 구조로
    변환한다. 공개 API에만 의존하면 중단·호출제한에 묶이므로,

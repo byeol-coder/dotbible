@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>하루 말씀 — 닷패드로 읽는 오늘의 성경</title>
+<title>Dot Bible — 닷패드로 읽는 다국어 성경</title>
 <meta name="description" content="자유 라이선스 성경 본문을 하루묵상 형태로, 닷패드 점자와 음성으로 읽는 다국어 접근성 웹 서비스">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- ============================================================
-     하루 말씀 (Daily Word for DotPad)
+     Dot Bible — 닷패드로 읽는 다국어 성경
      - 톤앤매너/디자인 토큰: tw-app src/styles/tokens.css 단일 원천 이식
      - 닷패드 연결: tw-app src/lib/dotpad.js 검증 흐름 이식(싱글턴 DP)
      - SDK: DotPad Web SDK v3.0.0 (tw-app 인라인본 그대로)
@@ -224,9 +224,9 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
 <header>
   <div class="logo" aria-hidden="true">
     <span class="dots"><i></i><i class="dn"></i><i class="dn"></i><i></i><i></i><i class="dn"></i></span>
-    <span data-i18n="brand.name">하루 말씀</span>
+    <span data-i18n="brand.name">Dot Bible</span>
   </div>
-  <span class="visually-hidden" data-i18n="app.tagline">하루 말씀 — 닷패드로 읽는 오늘의 성경</span>
+  <span class="visually-hidden" data-i18n="app.tagline">Dot Bible — 닷패드로 읽는 다국어 성경</span>
   <nav data-i18n-aria="nav.aria" aria-label="주 메뉴">
     <button data-nav="home" aria-current="page" data-i18n="nav.today">오늘</button>
     <button data-nav="reader" data-i18n="nav.reader">읽기</button>
@@ -401,9 +401,9 @@ const store = (()=> {
    ============================================================ */
 const I18N = {
   ko:{
-    "brand.name":"하루 말씀",
+    "brand.name":"Dot Bible",
     "nav.skip":"본문으로 건너뛰기",
-    "app.tagline":"하루 말씀 — 닷패드로 읽는 오늘의 성경",
+    "app.tagline":"Dot Bible — 닷패드로 읽는 다국어 성경",
     "nav.aria":"주 메뉴", "nav.today":"오늘", "nav.reader":"읽기", "nav.browse":"성경",
     "lang.switchAria":(to)=> to==="en" ? "English로 전환" : "한국어로 전환",
 
@@ -505,13 +505,13 @@ const I18N = {
     "footer.brailleImpl":(note)=>`점자 변환은 ${note} 구현입니다. 약자 규정은 적용하지 않았으며, 정식 배포 전 liblouis 테이블로 교체를 권장합니다.`,
     "footer.brailleNone":(note)=>`이 번역본은 점자 테이블이 아직 없어 닷패드 촉각 출력을 지원하지 않습니다. (${note})`,
 
-    "meta.title":"하루 말씀 — 닷패드로 읽는 오늘의 성경",
+    "meta.title":"Dot Bible — 닷패드로 읽는 다국어 성경",
     "meta.description":"자유 라이선스 성경 본문을 하루묵상 형태로, 닷패드 점자와 음성으로 읽는 다국어 접근성 웹 서비스"
   },
   en:{
-    "brand.name":"Daily Word",
+    "brand.name":"Dot Bible",
     "nav.skip":"Skip to main content",
-    "app.tagline":"Daily Word — today's Bible on DotPad",
+    "app.tagline":"Dot Bible — the multilingual Bible on DotPad",
     "nav.aria":"Main menu", "nav.today":"Today", "nav.reader":"Read", "nav.browse":"Bible",
     "lang.switchAria":(to)=> to==="en" ? "Switch to English" : "Switch to Korean",
 
@@ -613,7 +613,7 @@ const I18N = {
     "footer.brailleImpl":(note)=>`Braille conversion uses ${note}. Contracted-braille rules aren't applied yet — replacing this with a liblouis table is recommended before a real release.`,
     "footer.brailleNone":(note)=>`This translation doesn't have a braille table yet, so DotPad tactile output isn't supported. (${note})`,
 
-    "meta.title":"Daily Word — today's Bible on DotPad",
+    "meta.title":"Dot Bible — the multilingual Bible on DotPad",
     "meta.description":"A multilingual accessibility web app that reads freely licensed Bible text as a daily devotional, in DotPad braille and voice"
   }
 };
