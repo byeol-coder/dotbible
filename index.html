@@ -344,6 +344,13 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
         <button class="btn sm" id="btnTactileMode" aria-pressed="false" data-i18n="btn.tactileVerse">촉각: 절 단위</button>
         <button class="btn sm" id="btnGraphic" hidden data-i18n="btn.graphicShow">핵심 그래픽 보기</button>
       </div>
+      <div class="row row--tight row--center" id="graphicNav" hidden>
+        <span class="speed-label" id="graphicCount"></span>
+        <div class="seg" role="group" data-i18n-aria="reader.graphicNavAria" aria-label="그림 넘기기">
+          <button class="seg-btn" id="btnGraphicPrev" data-i18n="reader.graphicPrev">◀ 이전 그림</button>
+          <button class="seg-btn" id="btnGraphicNext" data-i18n="reader.graphicNext">다음 그림 ▶</button>
+        </div>
+      </div>
       <p class="field-label" data-i18n="reader.groupNav">촉각 면 이동</p>
       <div class="row row--tight">
         <div class="seg" role="group" data-i18n-aria="reader.panGroupAria" aria-label="촉각 면 쪽 이동">
@@ -498,6 +505,8 @@ const I18N = {
     "reader.speedLabel":"낭독 속도", "reader.speedSlow":"느리게", "reader.speedNormal":"보통", "reader.speedFast":"빠르게",
     "reader.panPrev":"◀ 이전 쪽", "reader.panNext":"다음 쪽 ▶", "reader.panGroupAria":"촉각 면 쪽 이동",
     "reader.groupPlay":"재생", "reader.groupOutput":"출력", "reader.groupSettings":"설정", "reader.groupNav":"촉각 면 이동",
+    "reader.graphicNavAria":"그림 넘기기", "reader.graphicPrev":"◀ 이전 그림", "reader.graphicNext":"다음 그림 ▶",
+    "reader.graphicPageOf":(i,n)=>`${i} / ${n}`,
     "reader.shortcutsToggle":"단축키 보기",
     "reader.dpKeysLabel":"닷패드 키",
     "reader.kbdHelp":'단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.',
@@ -609,6 +618,8 @@ const I18N = {
     "reader.speedLabel":"Reading speed", "reader.speedSlow":"Slow", "reader.speedNormal":"Normal", "reader.speedFast":"Fast",
     "reader.panPrev":"◀ Previous page", "reader.panNext":"Next page ▶", "reader.panGroupAria":"Tactile page navigation",
     "reader.groupPlay":"Playback", "reader.groupOutput":"Output", "reader.groupSettings":"Settings", "reader.groupNav":"Tactile paging",
+    "reader.graphicNavAria":"Browse pictures", "reader.graphicPrev":"◀ Previous picture", "reader.graphicNext":"Next picture ▶",
+    "reader.graphicPageOf":(i,n)=>`${i} of ${n}`,
     "reader.shortcutsToggle":"Keyboard shortcuts",
     "reader.dpKeysLabel":"DotPad keys",
     "reader.kbdHelp":'Keyboard shortcuts (no mouse or touch needed): <kbd>Space</kbd> play/pause · <kbd>↑</kbd><kbd>↓</kbd> move between verses · <kbd>Enter</kbd> send to DotPad · <kbd>[</kbd><kbd>]</kbd> previous/next tactile page. DotPad panning keys turn pages too. <b>Tactile mode</b> can follow the current verse (synced with audio) or lay out the whole chapter across several lines to scan by hand, and any registered <b>key graphic</b> can be shown tactilely. Everything above also works from a screen reader via these buttons.',
@@ -1039,7 +1050,14 @@ const DATA = {
     if(this._gfxCache[key]!==undefined) return this._gfxCache[key];
     try{
       const r=await fetch(`bible/graphics/${key}.json`,{cache:"force-cache"});
-      if(r.ok){ const j=await r.json(); if(j&&j.hex){ this._gfxCache[key]=j; return j; } }
+      if(r.ok){
+        const j=await r.json();
+        const pages = Array.isArray(j&&j.pages) ? j.pages : ((j&&j.hex) ? [{hex:j.hex, alt:j.alt, verse:j.verse, audio:null}] : null);
+        if(pages && pages.length){
+          const g={ key, title:(j&&j.title)||"", pages };
+          this._gfxCache[key]=g; return g;
+        }
+      }
     }catch{/* 없음 */}
     this._gfxCache[key]=null; return null;
   }
@@ -1605,7 +1623,10 @@ const UI = {
   reader:{ bookId:null, chapter:null, verses:[], cur:0, queue:[], qIdx:0 },
 
   nav(v){
-    if(this.view==="reader" && v!=="reader" && typeof Player!=="undefined") Player.stop();
+    if(this.view==="reader" && v!=="reader"){
+      if(typeof Player!=="undefined") Player.stop();
+      this.stopGraphicAudio();
+    }
     this.view=v;
     for(const s of ["home","reader","browse"]) $("#view-"+s).hidden = (s!==v);
     fitReaderBar();   /* 화면이 바뀌면 막대 높이도 0 또는 실제값으로 */
@@ -1648,6 +1669,39 @@ const UI = {
   },
 
   /* 촉각 면 미러 — 60×40(또는 96×64) 핀 전체를 화면에 그대로 반사 */
+  playGraphicAudio(page){
+    this.stopGraphicAudio();
+    if(page.audio && this._graphic && this._graphic.key){
+      const a=new Audio(`bible/graphics/${this._graphic.key}/${page.audio}`);
+      this._gfxAudio=a;
+      a.play().catch(()=>{ this._gfxAudio=null; speak(page.alt||""); });
+    } else {
+      speak(page.alt||"");
+    }
+  },
+  stopGraphicAudio(){
+    if(this._gfxAudio){ try{ this._gfxAudio.pause(); }catch{/* noop */} this._gfxAudio=null; }
+    Speech.stop();
+  },
+  showGraphicPage(idx){
+    const g=this._graphic; if(!g||!g.pages||!g.pages.length) return;
+    g.idx=Math.max(0,Math.min(g.pages.length-1,idx));
+    const p=g.pages[g.idx];
+    const n=g.pages.length;
+    let label=Trans.refCh(this.reader.bookId,this.reader.chapter)+t("reader.graphicLabelSuffix");
+    if(n>1) label+=" "+t("reader.graphicPageOf",g.idx+1,n);
+    Pager.setGraphic(p.hex,label);
+    this.strip();
+    if(DP.isConnected()) Pager.send();
+    this.playGraphicAudio(p);
+    const nav=$("#graphicNav"), cnt=$("#graphicCount");
+    if(nav) nav.hidden = n<=1;
+    if(cnt) cnt.textContent = n>1 ? t("reader.graphicPageOf",g.idx+1,n) : "";
+    if($("#btnGraphicPrev")) $("#btnGraphicPrev").disabled = g.idx<=0;
+    if($("#btnGraphicNext")) $("#btnGraphicNext").disabled = g.idx>=n-1;
+    live(p.alt||"");
+  },
+
   strip(){
     const g=DP.gridPins();
     const bits = (Pager.mode==="graphic" && Pager.graphicHex)
@@ -1813,10 +1867,11 @@ const UI = {
       this.selectVerse(0,false);
     }
     /* 이 본문의 핵심 촉각 그래픽 유무 확인 → 버튼 노출 */
-    this._graphic=null; $("#btnGraphic").hidden=true;
+    this.stopGraphicAudio();
+    this._graphic=null; $("#btnGraphic").hidden=true; $("#graphicNav").hidden=true;
     DATA.loadGraphic(bookId,chapter).then(g=>{
       if(g && UI.reader.bookId===bookId && UI.reader.chapter===chapter){
-        UI._graphic=g; const b=$("#btnGraphic"); b.hidden=false; b.textContent=t("btn.graphicShow"); b.setAttribute("aria-pressed","false");
+        UI._graphic={...g, idx:0}; const b=$("#btnGraphic"); b.hidden=false; b.textContent=t("btn.graphicShow"); b.setAttribute("aria-pressed","false");
       }
     });
     live(t("reader.chapterOpened", Trans.refCh(bookId, chapter), verses.length));
@@ -1956,14 +2011,14 @@ const UI = {
       }
     });
     $("#btnGraphic").addEventListener("click",async ()=>{
-      const g=UI._graphic; if(!g||!g.hex) return;
+      const g=UI._graphic; if(!g||!g.pages||!g.pages.length) return;
       const b=$("#btnGraphic");
       if(Pager.mode!=="graphic"){
-        Pager.setGraphic(g.hex, Trans.refCh(UI.reader.bookId, UI.reader.chapter)+t("reader.graphicLabelSuffix"));
+        UI.showGraphicPage(g.idx||0);
         b.setAttribute("aria-pressed","true"); b.textContent=t("btn.graphicHide");
-        UI.strip(); if(DP.isConnected()) await Pager.send();
-        live(t("reader.graphicShown", g.alt||""));
       } else {
+        UI.stopGraphicAudio();
+        $("#graphicNav").hidden=true;
         UI.tactileMode==="chapter"
           ? Pager.setChapter(UI.reader.verses, `${Trans.refCh(UI.reader.bookId, UI.reader.chapter)}`)
           : Pager.set(`${UI.reader.cur+1} ${UI.reader.verses[UI.reader.cur]}`, "");
@@ -1971,6 +2026,12 @@ const UI = {
         UI.strip(); if(DP.isConnected()) await Pager.send();
         live(t("reader.graphicHidden"));
       }
+    });
+    $("#btnGraphicPrev").addEventListener("click",()=>{
+      const g=UI._graphic; if(g) UI.showGraphicPage((g.idx||0)-1);
+    });
+    $("#btnGraphicNext").addEventListener("click",()=>{
+      const g=UI._graphic; if(g) UI.showGraphicPage((g.idx||0)+1);
     });
     document.querySelectorAll(".seg-btn[data-rate]").forEach(b=>b.addEventListener("click",()=>{
       const r=parseFloat(b.dataset.rate);
