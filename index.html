@@ -319,6 +319,7 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
         <button class="btn sm" id="btnPanR" data-i18n="reader.panNext">다음 쪽 ▶</button>
       </div>
       <p class="kbd-help" data-i18n-html="reader.kbdHelp">단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.</p>
+      <p class="kbd-help" id="dpKeys"></p>
     </div>
   </section>
 
@@ -460,6 +461,7 @@ const I18N = {
     "reader.where":"지금 어디", "reader.sendVerse":"이 절 닷패드 출력", "reader.markRead":"이 장 읽음 표시",
     "reader.speedLabel":"낭독 속도", "reader.speedSlow":"느리게", "reader.speedNormal":"보통", "reader.speedFast":"빠르게",
     "reader.panPrev":"◀ 이전 쪽", "reader.panNext":"다음 쪽 ▶",
+    "reader.dpKeysLabel":"닷패드 키",
     "reader.kbdHelp":'단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.',
     "reader.loading":"불러오는 중…",
     "reader.loadFail":"본문을 불러오지 못했어요. 인터넷 연결을 확인하거나, 배포 폴더에 bible/krv 데이터를 추가해 주세요.",
@@ -568,6 +570,7 @@ const I18N = {
     "reader.where":"Where am I", "reader.sendVerse":"Send verse to DotPad", "reader.markRead":"Mark chapter read",
     "reader.speedLabel":"Reading speed", "reader.speedSlow":"Slow", "reader.speedNormal":"Normal", "reader.speedFast":"Fast",
     "reader.panPrev":"◀ Previous page", "reader.panNext":"Next page ▶",
+    "reader.dpKeysLabel":"DotPad keys",
     "reader.kbdHelp":'Keyboard shortcuts (no mouse or touch needed): <kbd>Space</kbd> play/pause · <kbd>↑</kbd><kbd>↓</kbd> move between verses · <kbd>Enter</kbd> send to DotPad · <kbd>[</kbd><kbd>]</kbd> previous/next tactile page. DotPad panning keys turn pages too. <b>Tactile mode</b> can follow the current verse (synced with audio) or lay out the whole chapter across several lines to scan by hand, and any registered <b>key graphic</b> can be shown tactilely. Everything above also works from a screen reader via these buttons.',
     "reader.loading":"Loading…",
     "reader.loadFail":"Couldn't load this passage. Check your internet connection, or add bible/krv data to the deployment folder.",
@@ -645,6 +648,20 @@ function t(key, ...args){
   return (typeof v==="function") ? v(...args) : v;
 }
 
+/* DotPad hardware keys. Labels reuse the existing button i18n keys so the
+   help line stays in sync with the buttons and translates automatically. */
+const DP_KEYMAP=[
+  ["F1","btn.play"], ["F2","reader.prevVerse"], ["F3","reader.nextVerse"],
+  ["F4","reader.where"], ["F1+F2","reader.repeat"], ["F2+F3","btn.graphicShow"],
+  ["F3+F4","btn.tactileChapter"], ["F1+F4","reader.markRead"],
+  ["\u25C0 \u25B6","reader.panPrev"]
+];
+function renderDpKeys(){
+  const el=document.getElementById("dpKeys"); if(!el) return;
+  el.innerHTML = t("reader.dpKeysLabel") + ": "
+    + DP_KEYMAP.map(function(x){ return "<kbd>"+x[0]+"</kbd> "+t(x[1]); }).join(" \u00B7 ");
+}
+
 /* 정적 마크업 번역.
      data-i18n       → textContent
      data-i18n-html  → innerHTML (kbd·code 태그가 들어가는 문구 전용)
@@ -665,6 +682,7 @@ function applyI18N(){
   const ttl=document.querySelector("title"), desc=document.querySelector('meta[name="description"]');
   if(ttl) ttl.textContent=t("meta.title");
   if(desc) desc.setAttribute("content", t("meta.description"));
+  renderDpKeys();
   const tg=document.getElementById("langToggle");
   if(tg){
     const other = Lang.id==="ko" ? "en" : "ko";
@@ -1783,11 +1801,24 @@ const UI = {
       }
     });
 
-    /* 닷패드 패닝 키 → 점자 창 이동 */
+    /* DotPad hardware keys route to the same button handlers, so device and
+       screen never diverge and the voice/tactile side effects come along.
+       F4 = hear current status follows the Dot Games platform convention. */
     DP.onKey((key)=>{
       const K=window.DotPadKeyCodes||{};
-      if(key===K.PanningRight||key==="PanningRight") Pager.move(1);
-      else if(key===K.PanningLeft||key==="PanningLeft") Pager.move(-1);
+      const is=(n)=> key===K[n] || key===n;
+      const tap=(sel)=>{ const b=$(sel); if(b && !b.hidden && !b.disabled) b.click(); };
+      if(is("PanningRight")){ Pager.move(1); return; }
+      if(is("PanningLeft")){ Pager.move(-1); return; }
+      if(UI.view!=="reader") return;
+      if(is("KeyFunction1"))       tap("#btnPlay");
+      else if(is("KeyFunction2"))  tap("#btnPrevVerse");
+      else if(is("KeyFunction3"))  tap("#btnNextVerse");
+      else if(is("KeyFunction4"))  tap("#btnWhere");
+      else if(is("KeyFunction12")) tap("#btnRepeat");
+      else if(is("KeyFunction23")) tap("#btnGraphic");
+      else if(is("KeyFunction34")) tap("#btnTactileMode");
+      else if(is("KeyFunction14")) tap("#btnMarkRead");
     });
 
     $("#btnSendKey").addEventListener("click",async ()=>{
