@@ -204,6 +204,10 @@ footer{max-width:var(--wrap);margin:var(--sp-8) auto 0;padding:var(--sp-8) clamp
    호스트 모달: max-width 1180px / width 96vw / height calc(100vh - 56px)
    호스트 닫기 버튼(✕)이 우측 상단에 겹치므로 헤더 오른쪽을 비워둔다.
    헤더는 유지 — 호스트 모달에 제목 표시줄이 없고 닷패드 연결 버튼도 여기 있다. */
+/* 스티키 도구 막대는 본문 위에 떠서 그려진다. 아래 여백을 막대 높이만큼
+   확보하지 않으면 촉각 면이 막대에 가린다. 높이는 버튼 줄바꿈에 따라
+   달라지므로 JS가 --reader-bar-h 를 채운다. */
+main{padding-bottom:calc(var(--sp-48) + var(--reader-bar-h, 0px))}
 html[data-tw-embed] header{padding-right:68px}
 html[data-tw-embed] main{padding-top:var(--sp-28);padding-bottom:var(--sp-48)}
 html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
@@ -301,6 +305,8 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
         <button class="btn sm" id="btnRepeat" data-i18n="reader.repeat">이 절 다시</button>
         <button class="btn sm" id="btnPrevVerse" data-i18n="reader.prevVerse">이전 절</button>
         <button class="btn sm" id="btnNextVerse" data-i18n="reader.nextVerse">다음 절</button>
+      </div>
+      <div class="row row--tight">
         <button class="btn sm" id="btnWhere" data-i18n="reader.where">지금 어디</button>
         <button class="btn sm primary" id="btnSendVerse" data-i18n="reader.sendVerse">이 절 닷패드 출력</button>
         <button class="btn sm" id="btnMarkRead" data-i18n="reader.markRead">이 장 읽음 표시</button>
@@ -315,9 +321,10 @@ html[data-tw-embed] footer{padding-bottom:var(--sp-28)}
         <button class="btn sm" id="btnAuto" aria-pressed="true" data-i18n="btn.autoOn">자동 넘김: 켬</button>
         <button class="btn sm" id="btnTactileMode" aria-pressed="false" data-i18n="btn.tactileVerse">촉각: 절 단위</button>
         <button class="btn sm" id="btnGraphic" hidden data-i18n="btn.graphicShow">핵심 그래픽 보기</button>
-        <span class="spacer"></span>
-        <button class="btn sm" id="btnPanL" data-i18n="reader.panPrev">◀ 이전 쪽</button>
-        <button class="btn sm" id="btnPanR" data-i18n="reader.panNext">다음 쪽 ▶</button>
+        <div class="seg" role="group" data-i18n-aria="reader.panGroupAria" aria-label="촉각 면 쪽 이동">
+          <button class="seg-btn" id="btnPanL" data-i18n="reader.panPrev">◀ 이전 쪽</button>
+          <button class="seg-btn" id="btnPanR" data-i18n="reader.panNext">다음 쪽 ▶</button>
+        </div>
       </div>
       <p class="kbd-help" data-i18n-html="reader.kbdHelp">단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.</p>
       <p class="kbd-help" id="dpKeys"></p>
@@ -461,7 +468,7 @@ const I18N = {
     "reader.repeat":"이 절 다시", "reader.prevVerse":"이전 절", "reader.nextVerse":"다음 절",
     "reader.where":"지금 어디", "reader.sendVerse":"이 절 닷패드 출력", "reader.markRead":"이 장 읽음 표시",
     "reader.speedLabel":"낭독 속도", "reader.speedSlow":"느리게", "reader.speedNormal":"보통", "reader.speedFast":"빠르게",
-    "reader.panPrev":"◀ 이전 쪽", "reader.panNext":"다음 쪽 ▶",
+    "reader.panPrev":"◀ 이전 쪽", "reader.panNext":"다음 쪽 ▶", "reader.panGroupAria":"촉각 면 쪽 이동",
     "reader.dpKeysLabel":"닷패드 키",
     "reader.kbdHelp":'단축키(마우스·터치 없이): <kbd>Space</kbd> 이어 듣기·멈춤 · <kbd>↑</kbd><kbd>↓</kbd> 절 이동 · <kbd>Enter</kbd> 닷패드 출력 · <kbd>[</kbd><kbd>]</kbd> 촉각 면 이전·다음 쪽. 닷패드 패닝 키로도 쪽을 넘길 수 있어요. <b>촉각 면은</b> 절 단위(오디오와 동기)와 장 전체(여러 줄로 펼쳐 훑어 읽기) 중 고를 수 있고, 등록된 <b>핵심 그래픽</b>이 있으면 촉각으로 볼 수 있어요. 스크린리더를 쓰신다면 위 버튼으로도 모두 조작할 수 있어요.',
     "reader.loading":"불러오는 중…",
@@ -570,7 +577,7 @@ const I18N = {
     "reader.repeat":"Repeat verse", "reader.prevVerse":"Previous verse", "reader.nextVerse":"Next verse",
     "reader.where":"Where am I", "reader.sendVerse":"Send verse to DotPad", "reader.markRead":"Mark chapter read",
     "reader.speedLabel":"Reading speed", "reader.speedSlow":"Slow", "reader.speedNormal":"Normal", "reader.speedFast":"Fast",
-    "reader.panPrev":"◀ Previous page", "reader.panNext":"Next page ▶",
+    "reader.panPrev":"◀ Previous page", "reader.panNext":"Next page ▶", "reader.panGroupAria":"Tactile page navigation",
     "reader.dpKeysLabel":"DotPad keys",
     "reader.kbdHelp":'Keyboard shortcuts (no mouse or touch needed): <kbd>Space</kbd> play/pause · <kbd>↑</kbd><kbd>↓</kbd> move between verses · <kbd>Enter</kbd> send to DotPad · <kbd>[</kbd><kbd>]</kbd> previous/next tactile page. DotPad panning keys turn pages too. <b>Tactile mode</b> can follow the current verse (synced with audio) or lay out the whole chapter across several lines to scan by hand, and any registered <b>key graphic</b> can be shown tactilely. Everything above also works from a screen reader via these buttons.',
     "reader.loading":"Loading…",
@@ -657,6 +664,21 @@ const DP_KEYMAP=[
   ["F3+F4","btn.tactileChapter"], ["F1+F4","reader.markRead"],
   ["\u25C0 \u25B6","reader.panPrev"]
 ];
+/* 도구 막대 높이를 CSS 변수로 흘려보낸다. 막대가 숨겨진 화면에서는 0이 되어
+   자동으로 원래 여백으로 돌아간다. */
+function fitReaderBar(){
+  const bar=document.querySelector(".reader-bar");
+  const h=(bar && bar.offsetParent!==null) ? bar.offsetHeight : 0;
+  document.documentElement.style.setProperty("--reader-bar-h", h+"px");
+}
+if(typeof ResizeObserver==="function"){
+  window.addEventListener("load",function(){
+    const bar=document.querySelector(".reader-bar");
+    if(bar) new ResizeObserver(fitReaderBar).observe(bar);
+  });
+}
+window.addEventListener("resize", fitReaderBar);
+
 function renderDpKeys(){
   const el=document.getElementById("dpKeys"); if(!el) return;
   el.innerHTML = t("reader.dpKeysLabel") + ": "
@@ -684,6 +706,7 @@ function applyI18N(){
   if(ttl) ttl.textContent=t("meta.title");
   if(desc) desc.setAttribute("content", t("meta.description"));
   renderDpKeys();
+  fitReaderBar();
   const tg=document.getElementById("langToggle");
   if(tg){
     const other = Lang.id==="ko" ? "en" : "ko";
@@ -1548,6 +1571,7 @@ const UI = {
     if(this.view==="reader" && v!=="reader" && typeof Player!=="undefined") Player.stop();
     this.view=v;
     for(const s of ["home","reader","browse"]) $("#view-"+s).hidden = (s!==v);
+    fitReaderBar();   /* 화면이 바뀌면 막대 높이도 0 또는 실제값으로 */
     document.querySelectorAll("header nav button").forEach(b=>{
       if(b.dataset.nav===v) b.setAttribute("aria-current","page");
       else b.removeAttribute("aria-current");
