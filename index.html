@@ -727,6 +727,11 @@ function setUILang(id){
   $("#btnTactileMode").textContent = t(UI.tactileMode==="chapter"?"btn.tactileChapter":"btn.tactileVerse");
   const g=$("#btnGraphic");
   if(g && !g.hidden) g.textContent = t(Pager.mode==="graphic" ? "btn.graphicHide" : "btn.graphicShow");
+  /* 지난 동작의 결과로 떠 있는 알림은 이전 언어 문구다. 다시 번역할 수
+     없으니(원래 인자를 들고 있지 않다) 지운다 — 남겨두면 한국어 화면에
+     영어 오류가 붙어 있게 된다. */
+  UI.dpNotice("");
+  const rn=$("#readerNotice"); if(rn){ rn.textContent=""; rn.hidden=true; }
   if(UI.transInfo) UI.transInfo(); else UI.attribution();
   UI.renderResume();
   UI.home();
@@ -1710,9 +1715,13 @@ const UI = {
     const cur=Trans.cur();
     if(!cur.louis) return true;
     live(t("brl.prepping"));
+    const el=$("#transNotice");
+    if(el){ el.className="notice info"; el.textContent=t("brl.prepping"); el.hidden=false; }
     this._prep=BR.ready().then(ok=>{ this._prep=null; return ok; });
     const ok=await this._prep;
     this.refreshBraille();
+    /* 로드가 끝나면 상태 문구를 실제 결과로 교체한다 */
+    if(this.transInfo) this.transInfo();
     return ok;
   },
 
